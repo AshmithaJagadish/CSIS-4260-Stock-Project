@@ -90,10 +90,10 @@ streamlit run main.py
 ---
 
 ## 👨‍💻 Contributors
-- **Ashmita** – Data Processing & Model Implementation
-- **Ashmita]** – Dashboard Development
+- **Ashmita Jagadish** – Data Processing & Model Implementation
+- **Ashmita Jagadish** – Dashboard Development
 
-📩 For questions, contact: `your.email@example.com`
+📩 For questions, contact: `ashmithajagadish@gmail.com`
 
 ---
 
