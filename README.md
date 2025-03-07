@@ -49,7 +49,7 @@ The project is divided into **three main parts:**
 - ✅ Use **Extra Trees Regressor & XGBoost** for stock price forecasting
 - ✅ Train models with an **80-20 train-test split**
 
-**Libraries Used:** Pandas, Polars, Scikit-learn, XGBoost
+**Libraries Used:** Pandas, Polars, Scikit-learn, ExtraTree Regressor
 
 ---
 
@@ -90,8 +90,8 @@ streamlit run main.py
 ---
 
 ## 👨‍💻 Contributors
-- **[Your Name]** – Data Processing & Model Implementation
-- **[Your Name]** – Dashboard Development
+- **Ashmita** – Data Processing & Model Implementation
+- **Ashmita]** – Dashboard Development
 
 📩 For questions, contact: `your.email@example.com`
 
@@ -100,6 +100,4 @@ streamlit run main.py
 ## 📜 License
 This project is for educational purposes under **CSIS 4260** and is not for commercial use.
 
----
 
-🌟 **If you find this project helpful, give it a star on GitHub!** ⭐
