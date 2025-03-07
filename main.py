@@ -9,7 +9,6 @@ import datetime
 # Load dataset
 def load_data():
     df = pd.read_parquet("partc.parquet")  # Ensure this file is uploaded
-    st.write("Dataset Columns:", df.columns.tolist())  # Debugging output
     return df
 
 # Forecasting function
@@ -33,40 +32,48 @@ def forecast_stock(df, company):
     future_dates = [last_known_date + datetime.timedelta(days=i) for i in range(1, 11)]
     future_predictions = model.predict(X.tail(10))
     
-    return predictions, y_test, error, accuracy, future_dates, future_predictions
+    future_df = pd.DataFrame({"Date": future_dates, "Forecasted Price": future_predictions})
+    future_df["Forecasted Price"] = future_df["Forecasted Price"].round(2)  # Round values to 2 decimal places
+    
+    return predictions, y_test, error, accuracy, future_df
 
 # Streamlit App
-st.title("Stock Forecasting with Extra Trees Regressor")
+st.title("📈 AI-Powered Stock Price Forecasting")
+st.subheader("🔍 Predicting Future Stock Prices with Extra Trees Regressor")
 
 # Load data
 df = load_data()
 if 'name' not in df.columns:
-    st.error("Error: 'name' column not found in the dataset. Please check the column names.")
+    st.error("❌ Error: 'name' column not found in the dataset. Please check the column names.")
     st.stop()
 
 companies = df['name'].unique()
-selected_company = st.selectbox("Select a Company:", companies)
+selected_company = st.selectbox("📌 Select a Company:", companies)
 
 if selected_company:
-    predictions, actual, error, accuracy, future_dates, future_predictions = forecast_stock(df, selected_company)
+    predictions, actual, error, accuracy, future_df = forecast_stock(df, selected_company)
     
-    st.write(f"Mean Absolute Error: {error:.2f}")
-    st.write(f"Accuracy Score: {accuracy:.2f}%")
+    st.success(f"📊 Model Performance for {selected_company}")
+    st.write(f"✅ Mean Absolute Error: {error:.2f}")
+    st.write(f"✅ Accuracy Score: {accuracy:.2f}%")
+    
+    # Forecast Table
+    st.subheader("📅 10-Day Future Stock Price Forecast")
+    st.dataframe(future_df, width=800)
     
     # Interactive Graphs
-    fig1 = px.line(x=range(len(predictions)), y=predictions, title="Predicted Stock Prices", labels={'x': 'Days', 'y': 'Price'})
+    fig1 = px.line(x=range(len(predictions)), y=predictions, title="🔮 Predicted Stock Prices", labels={'x': 'Days', 'y': 'Price'})
     st.plotly_chart(fig1)
     
-    fig2 = px.line(x=range(len(actual)), y=actual, title="Actual Stock Prices", labels={'x': 'Days', 'y': 'Price'})
+    fig2 = px.line(x=range(len(actual)), y=actual, title="📌 Actual Stock Prices", labels={'x': 'Days', 'y': 'Price'})
     st.plotly_chart(fig2)
     
     combined_df = pd.DataFrame({"Actual": actual.values, "Predicted": predictions})
-    fig3 = px.line(combined_df, title="Actual vs Predicted Prices")
+    fig3 = px.line(combined_df, title="📊 Actual vs Predicted Prices")
     st.plotly_chart(fig3)
     
-    fig4 = px.scatter(x=actual, y=predictions, title="Actual vs Predicted Scatter Plot", labels={'x': 'Actual', 'y': 'Predicted'})
+    fig4 = px.scatter(x=actual, y=predictions, title="🔄 Actual vs Predicted Scatter Plot", labels={'x': 'Actual', 'y': 'Predicted'})
     st.plotly_chart(fig4)
     
-    future_df = pd.DataFrame({"Date": future_dates, "Forecasted Price": future_predictions})
-    fig5 = px.line(future_df, x='Date', y='Forecasted Price', title="10-Day Forecasted Stock Prices")
+    fig5 = px.line(future_df, x='Date', y='Forecasted Price', title="🚀 10-Day Forecasted Stock Prices")
     st.plotly_chart(fig5)
