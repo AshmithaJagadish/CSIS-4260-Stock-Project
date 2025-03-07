@@ -14,10 +14,10 @@ def load_data():
 
 # Forecasting function
 def forecast_stock(df, company):
-    company_data = df[df['Company'] == company]
+    company_data = df[df['name'] == company]
     
     X = company_data[['EMA_10', 'MACD', 'ATR_14', 'Williams_%R']]  # Features
-    y = company_data['Target']  # Target variable
+    y = company_data['close']  # Using 'close' price as target variable
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
@@ -29,7 +29,7 @@ def forecast_stock(df, company):
     accuracy = r2_score(y_test, predictions) * 100
     
     # Forecast for next 10 days
-    last_known_date = company_data.index[-1] if hasattr(company_data.index, 'is_all_dates') and company_data.index.is_all_dates else datetime.datetime.today()
+    last_known_date = pd.to_datetime(company_data['date'].iloc[-1])
     future_dates = [last_known_date + datetime.timedelta(days=i) for i in range(1, 11)]
     future_predictions = model.predict(X.tail(10))
     
@@ -40,11 +40,11 @@ st.title("Stock Forecasting with Extra Trees Regressor")
 
 # Load data
 df = load_data()
-if 'Company' not in df.columns:
-    st.error("Error: 'Company' column not found in the dataset. Please check the column names.")
+if 'name' not in df.columns:
+    st.error("Error: 'name' column not found in the dataset. Please check the column names.")
     st.stop()
 
-companies = df['Company'].unique()
+companies = df['name'].unique()
 selected_company = st.selectbox("Select a Company:", companies)
 
 if selected_company:
