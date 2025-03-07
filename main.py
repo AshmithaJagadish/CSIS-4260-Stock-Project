@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
@@ -29,13 +30,13 @@ def forecast_stock(df, company):
     
     # Forecast for next 10 days
     last_known_date = pd.to_datetime(company_data['date'].iloc[-1])
-    future_dates = [last_known_date + datetime.timedelta(days=i) for i in range(1, 11)]
+    future_dates = [(last_known_date + datetime.timedelta(days=i)).date() for i in range(1, 11)]
     future_predictions = model.predict(X.tail(10))
     
     future_df = pd.DataFrame({"Date": future_dates, "Forecasted Price": future_predictions})
     future_df["Forecasted Price"] = future_df["Forecasted Price"].round(2)  # Round values to 2 decimal places
     
-    return predictions, y_test, error, accuracy, future_df
+    return predictions, y_test, error, accuracy, future_df, company_data
 
 # Streamlit App
 st.title("📈 AI-Powered Stock Price Forecasting")
@@ -51,7 +52,7 @@ companies = df['name'].unique()
 selected_company = st.selectbox("📌 Select a Company:", companies)
 
 if selected_company:
-    predictions, actual, error, accuracy, future_df = forecast_stock(df, selected_company)
+    predictions, actual, error, accuracy, future_df, company_data = forecast_stock(df, selected_company)
     
     st.success(f"📊 Model Performance for {selected_company}")
     st.write(f"✅ Mean Absolute Error: {error:.2f}")
@@ -61,19 +62,33 @@ if selected_company:
     st.subheader("📅 10-Day Future Stock Price Forecast")
     st.dataframe(future_df, width=800)
     
-    # Interactive Graphs
-    fig1 = px.line(x=range(len(predictions)), y=predictions, title="🔮 Predicted Stock Prices", labels={'x': 'Days', 'y': 'Price'})
+    # Interactive Graphs with Interesting Colors
+    fig1 = px.line(x=range(len(predictions)), y=predictions, title="🔮 Predicted Stock Prices", labels={'x': 'Days', 'y': 'Price'}, color_discrete_sequence=["#FF5733"])
     st.plotly_chart(fig1)
     
-    fig2 = px.line(x=range(len(actual)), y=actual, title="📌 Actual Stock Prices", labels={'x': 'Days', 'y': 'Price'})
+    fig2 = px.line(x=range(len(actual)), y=actual, title="📌 Actual Stock Prices", labels={'x': 'Days', 'y': 'Price'}, color_discrete_sequence=["#33FF57"])
     st.plotly_chart(fig2)
     
     combined_df = pd.DataFrame({"Actual": actual.values, "Predicted": predictions})
-    fig3 = px.line(combined_df, title="📊 Actual vs Predicted Prices")
+    fig3 = px.line(combined_df, title="📊 Actual vs Predicted Prices", color_discrete_sequence=["#5733FF", "#FF33A8"])
     st.plotly_chart(fig3)
     
-    fig4 = px.scatter(x=actual, y=predictions, title="🔄 Actual vs Predicted Scatter Plot", labels={'x': 'Actual', 'y': 'Predicted'})
+    fig4 = px.scatter(x=actual, y=predictions, title="🔄 Actual vs Predicted Scatter Plot", labels={'x': 'Actual', 'y': 'Predicted'}, color_discrete_sequence=["#FF8C00"])
     st.plotly_chart(fig4)
     
-    fig5 = px.line(future_df, x='Date', y='Forecasted Price', title="🚀 10-Day Forecasted Stock Prices")
+    fig5 = px.line(future_df, x='Date', y='Forecasted Price', title="🚀 10-Day Forecasted Stock Prices", color_discrete_sequence=["#008CFF"])
     st.plotly_chart(fig5)
+    
+    # Candlestick Chart
+    st.subheader("📉 Candlestick Chart for Stock Movements")
+    fig6 = go.Figure(data=[go.Candlestick(
+        x=company_data['date'],
+        open=company_data['open'],
+        high=company_data['high'],
+        low=company_data['low'],
+        close=company_data['close'],
+        increasing_line_color='green',
+        decreasing_line_color='red'
+    )])
+    fig6.update_layout(title="📊 Historical Candlestick Chart", xaxis_title="Date", yaxis_title="Stock Price")
+    st.plotly_chart(fig6)
