@@ -9,6 +9,7 @@ import datetime
 # Load dataset
 def load_data():
     df = pd.read_parquet("partc.parquet")  # Ensure this file is uploaded
+    st.write("Dataset Columns:", df.columns.tolist())  # Debugging output
     return df
 
 # Forecasting function
@@ -39,6 +40,10 @@ st.title("Stock Forecasting with Extra Trees Regressor")
 
 # Load data
 df = load_data()
+if 'Company' not in df.columns:
+    st.error("Error: 'Company' column not found in the dataset. Please check the column names.")
+    st.stop()
+
 companies = df['Company'].unique()
 selected_company = st.selectbox("Select a Company:", companies)
 
